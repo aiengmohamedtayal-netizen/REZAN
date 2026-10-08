@@ -8,6 +8,7 @@ on:
 
 jobs:
   quality:
+    if: ${{ hashFiles('package.json') != '' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -20,18 +21,22 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
-        continue-on-error: true
 
       - name: Typecheck
         run: npx tsc --noEmit
-        continue-on-error: true
 
       - name: Lint
         run: npm run lint
-        continue-on-error: true
 
       - name: Build
         run: npm run build
-        continue-on-error: true
+
+  bootstrap-check:
+    if: ${{ hashFiles('package.json') == '' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository bootstrap status
+        run: echo "REZAN repository bootstrap is ready. Upload the application package.json and source tree to enable full CI."
