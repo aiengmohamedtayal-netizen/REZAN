@@ -1,0 +1,41 @@
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import Link from "next/link";
+
+export default function AccountPage() {
+  return (
+    <>
+      <Navbar />
+      <main className="min-h-screen bg-[#F7F3EA] py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1000px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+          <aside className="lg:col-span-1 lg:border-e border-[#E8E4DB] lg:pe-6">
+            <h1 className="text-[20px] sm:text-[22px] font-semibold text-[#1A1A1A] mb-4 sm:mb-8" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>حسابي</h1>
+            <nav className="flex lg:flex-col gap-2 sm:gap-3 overflow-x-auto pb-2 lg:pb-0 text-[14px]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+              <Link href="/account" className="text-[#B89A62] font-medium min-h-[44px] px-3.5 py-2.5 rounded-sm bg-white lg:bg-transparent border lg:border-0 border-[#E8E4DB] shrink-0 flex items-center">البيانات الشخصية</Link>
+              <Link href="/orders" className="text-[#555550] hover:text-[#B89A62] min-h-[44px] px-3.5 py-2.5 rounded-sm bg-white lg:bg-transparent border lg:border-0 border-[#E8E4DB] shrink-0 flex items-center">طلباتي</Link>
+              <Link href="/wishlist" className="text-[#555550] hover:text-[#B89A62] min-h-[44px] px-3.5 py-2.5 rounded-sm bg-white lg:bg-transparent border lg:border-0 border-[#E8E4DB] shrink-0 flex items-center">المفضلة</Link>
+              <button className="text-[#555550] hover:text-[#B89A62] min-h-[44px] px-3.5 py-2.5 rounded-sm bg-white lg:bg-transparent border lg:border-0 border-[#E8E4DB] shrink-0 flex items-center text-start">تسجيل الخروج</button>
+            </nav>
+          </aside>
+          <div className="lg:col-span-3 bg-white p-5 sm:p-8 border border-[#E8E4DB]">
+            <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#1A1A1A] mb-6" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>البيانات الشخصية</h2>
+            <form className="space-y-4 max-w-md">
+              <div>
+                <label className="block text-[13px] text-[#555550] mb-2" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>الاسم الكامل</label>
+                <input type="text" defaultValue="عميل ريزان" className="w-full min-h-[46px] border border-[#E8E4DB] px-4 py-2.5 text-[14px] outline-none focus:border-[#B89A62]" />
+              </div>
+              <div>
+                <label className="block text-[13px] text-[#555550] mb-2" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>البريد الإلكتروني</label>
+                <input type="email" defaultValue="customer@example.com" className="w-full min-h-[46px] border border-[#E8E4DB] px-4 py-2.5 text-[14px] outline-none focus:border-[#B89A62]" />
+              </div>
+              <button type="button" className="w-full sm:w-auto bg-[#1A1A1A] text-white px-8 py-3.5 min-h-[46px] text-[13px] font-medium hover:bg-black mt-4 flex items-center justify-center" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+                حفظ التغييرات
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
