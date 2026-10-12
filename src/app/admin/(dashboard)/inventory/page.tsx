@@ -203,24 +203,62 @@ export default async function AdminInventoryPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {/* Direct Inline Stock Adjustment */}
-                      <form action={adjustStockAction} className="flex items-center gap-2">
-                        <input type="hidden" name="variantId" value={item.variant_id} />
-                        <input
-                          type="number"
-                          name="newStock"
-                          defaultValue={item.stock}
-                          min={0}
-                          className="w-20 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-[#B89A62] text-white px-2 py-1 text-[13px] font-mono rounded-xs text-center outline-none"
-                        />
-                        <button
-                          type="submit"
-                          className="bg-[#262626] hover:bg-[#B89A62] hover:text-black text-[#C8C4BC] text-[11px] px-2.5 py-1 rounded-xs transition-colors font-medium"
-                          style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
-                        >
-                          تحديث
-                        </button>
-                      </form>
+                      {/* Direct Inline Stock Adjustment with Reason and Controls */}
+                      <details className="text-[12px] group">
+                        <summary className="cursor-pointer text-[#B89A62] hover:underline flex items-center gap-1 font-medium select-none">
+                          <span>تعديل الجرد</span>
+                        </summary>
+                        <form action={adjustStockAction} className="mt-2 p-3 bg-[#111111] border border-[#262626] rounded-xs space-y-2 min-w-[220px]">
+                          <input type="hidden" name="variantId" value={item.variant_id} />
+                          <div>
+                            <label className="block text-[10px] text-[#888] mb-1">الرصيد الجديد:</label>
+                            <input
+                              type="number"
+                              name="newStock"
+                              defaultValue={item.stock}
+                              min={0}
+                              className="w-full bg-[#1A1A1A] border border-[#333] text-white px-2 py-1 text-[12px] font-mono rounded-xs text-center"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-[#888] mb-1">سبب التعديل:</label>
+                            <select
+                              name="reason"
+                              defaultValue="manual_adjustment"
+                              className="w-full bg-[#1A1A1A] border border-[#333] text-white px-2 py-1 text-[11px] rounded-xs"
+                            >
+                              <option value="restock">إعادة تموين (Restock)</option>
+                              <option value="manual_adjustment">تسوية يدوية (Adjustment)</option>
+                              <option value="damaged">هالك / تالف (Damaged)</option>
+                              <option value="return">مرتجع عميل (Return)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-[#888] mb-1">السعر (ج.م):</label>
+                            <input
+                              type="number"
+                              name="price"
+                              defaultValue={item.price}
+                              className="w-full bg-[#1A1A1A] border border-[#333] text-white px-2 py-1 text-[11px] font-mono rounded-xs text-center"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-[#888] mb-1">ملاحظة التعديل:</label>
+                            <input
+                              type="text"
+                              name="notes"
+                              placeholder="سبب الجرد أو رقم الشحنة..."
+                              className="w-full bg-[#1A1A1A] border border-[#333] text-white px-2 py-1 text-[11px] rounded-xs"
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            className="w-full bg-[#B89A62] text-[#111] font-semibold py-1 rounded-xs text-[11px] hover:bg-[#CDB48A] transition-colors cursor-pointer"
+                          >
+                            تأكيد واعتماد الحركة
+                          </button>
+                        </form>
+                      </details>
                     </td>
                   </tr>
                 );

@@ -1,14 +1,17 @@
 import { queryAll } from "@/server/db";
-import { getDashboardOverview } from "@/server/domain/analytics";
+import { getDashboardOverview, getAdvancedAnalytics } from "@/server/domain/analytics";
 import { formatEGP } from "@/data";
 import {
   BarChart3,
   TrendingUp,
-  ShoppingBag,
-  Users,
   Coins,
   Sparkles,
   PieChart,
+  MapPin,
+  Repeat,
+  Warehouse,
+  CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 
 interface TopProductRow {
@@ -21,6 +24,7 @@ interface TopProductRow {
 
 export default async function AdminAnalyticsPage() {
   const { kpis, salesByFamily, orderStatusCounts } = getDashboardOverview();
+  const { governorateSales, retention, inventory, payments } = getAdvancedAnalytics();
 
   const topProducts = queryAll<TopProductRow>(`
     SELECT 
@@ -38,33 +42,38 @@ export default async function AdminAnalyticsPage() {
   `);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
+              FINANCIAL INTELLIGENCE & ANALYTICS
+            </span>
+          </div>
           <h1
-            className="text-2xl font-bold text-[#F7F3EA]"
+            className="text-[22px] sm:text-[26px] font-semibold text-[#F7F3EA]"
             style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
           >
-            التقارير والتحليلات البيعية والمالية
+            التقارير والتحليلات البيعية والمالية المتقدمة
           </h1>
-          <p className="text-[13px] text-[#888880] mt-1">
-            مؤشرات النمو، الإيرادات المحققة، توزيع المبيعات حسب العائلات العطرية والمجموعات
+          <p className="text-[13px] text-[#888880] mt-1" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+            تحليل التوزيع الجغرافي للمبيعات، ولاء العملاء وتكرار الشراء، وتوزيع رأس مال المخزون
           </p>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* Primary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
           <div>
-            <p className="text-[12px] text-[#888880]">إجمالي الإيرادات</p>
+            <p className="text-[12px] text-[#888880]">إجمالي الإيرادات المحققة</p>
             <p className="text-2xl font-bold text-[#B89A62] mt-1 font-mono">
               {formatEGP(kpis.totalRevenue)}
             </p>
             <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-mono">
               <TrendingUp size={12} />
-              +{kpis.revenueGrowthPercent}% نمو شهري
+              +{kpis.revenueGrowthPercent}% نمو المبيعات
             </p>
           </div>
           <div className="w-10 h-10 rounded-xs bg-[#B89A62]/10 text-[#B89A62] flex items-center justify-center border border-[#B89A62]/20">
@@ -74,11 +83,11 @@ export default async function AdminAnalyticsPage() {
 
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
           <div>
-            <p className="text-[12px] text-[#888880]">متوسط قيمة الطلب (AOV)</p>
+            <p className="text-[12px] text-[#888880]">متوسط قيمة السلة (AOV)</p>
             <p className="text-2xl font-bold text-[#F7F3EA] mt-1 font-mono">
               {formatEGP(kpis.averageOrderValue)}
             </p>
-            <p className="text-[11px] text-[#888880] mt-1">لكل عملية شراء</p>
+            <p className="text-[11px] text-[#888880] mt-1">لكل عملية شراء معتمدة</p>
           </div>
           <div className="w-10 h-10 rounded-xs bg-[#B89A62]/10 text-[#B89A62] flex items-center justify-center border border-[#B89A62]/20">
             <BarChart3 size={20} />
@@ -87,34 +96,136 @@ export default async function AdminAnalyticsPage() {
 
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
           <div>
-            <p className="text-[12px] text-[#888880]">الطلبات المنجزة</p>
-            <p className="text-2xl font-bold text-[#F7F3EA] mt-1 font-mono">
-              {kpis.totalOrders}
+            <p className="text-[12px] text-[#888880]">معدل تكرار الشراء (Retention)</p>
+            <p className="text-2xl font-bold text-emerald-400 mt-1 font-mono">
+              {retention.repeatPurchaseRate}%
             </p>
-            <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-mono">
-              <TrendingUp size={12} />
-              +{kpis.ordersGrowthPercent}% هذا الأسبوع
+            <p className="text-[11px] text-[#888880] mt-1 font-mono">
+              متوسط LTV: {formatEGP(retention.averageLTV)}
             </p>
           </div>
           <div className="w-10 h-10 rounded-xs bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-            <ShoppingBag size={20} />
+            <Repeat size={20} />
           </div>
         </div>
 
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
           <div>
-            <p className="text-[12px] text-[#888880]">عملاء النخبة المسجلين</p>
+            <p className="text-[12px] text-[#888880]">رأس مال المخزون (Retail Value)</p>
             <p className="text-2xl font-bold text-[#F7F3EA] mt-1 font-mono">
-              {kpis.totalCustomers}
+              {formatEGP(inventory.retailValuation)}
             </p>
-            <p className="text-[11px] text-[#888880] mt-1">حسابات نشطة</p>
+            <p className="text-[11px] text-[#888880] mt-1 font-mono">
+              {inventory.totalUnits} زجاجة جاهزة للشحن
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xs bg-[#B89A62]/10 text-[#B89A62] flex items-center justify-center border border-[#B89A62]/20">
-            <Users size={20} />
+            <Warehouse size={20} />
           </div>
         </div>
       </div>
 
+      {/* Row 2: Governorate Sales Distribution & Payment Methods */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Geographic / Governorate Distribution */}
+        <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs space-y-4">
+          <h2
+            className="text-[15px] font-semibold text-[#F7F3EA] flex items-center gap-2 pb-3 border-b border-[#242424]"
+            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+          >
+            <MapPin size={16} className="text-[#B89A62]" />
+            التوزيع الجغرافي للمبيعات حسب المحافظات والمدن
+          </h2>
+
+          <div className="space-y-3">
+            {governorateSales.map((g) => (
+              <div key={g.governorate} className="space-y-1">
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-[#F7F3EA] font-medium">{g.governorate}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-[#888] font-mono">({g.orderCount} طلبات)</span>
+                    <span className="text-[#B89A62] font-mono font-bold">
+                      {formatEGP(g.revenue)} ({g.percent}%)
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-[#111111] h-2 rounded-full overflow-hidden border border-[#242424]">
+                  <div
+                    className="bg-[#B89A62] h-full rounded-full transition-all duration-500"
+                    style={{ width: `${Math.max(g.percent, 6)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+
+            {governorateSales.length === 0 && (
+              <p className="text-center text-[#888880] py-6 text-[13px]">
+                لا توجد بيانات توزيع جغرافي كافية حتى الآن
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Payment Methods & Capital at Risk */}
+        <div className="space-y-6">
+          {/* Payment Methods Breakdown */}
+          <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs space-y-4">
+            <h2
+              className="text-[15px] font-semibold text-[#F7F3EA] flex items-center gap-2 pb-3 border-b border-[#242424]"
+              style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+            >
+              <CreditCard size={16} className="text-[#B89A62]" />
+              توزيع طرق الدفع والتحصيل (Payment Methods)
+            </h2>
+
+            <div className="grid grid-cols-2 gap-3">
+              {payments.map((p) => (
+                <div key={p.method} className="bg-[#111111] border border-[#242424] p-4 rounded-xs space-y-1.5">
+                  <span className="text-[11px] text-[#888880] block font-medium">
+                    {p.labelAr}
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xl font-bold text-[#F7F3EA] font-mono">
+                      {p.percent}%
+                    </span>
+                    <span className="text-[12px] text-[#B89A62] font-mono">
+                      {formatEGP(p.revenue)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-[#666] font-mono block">
+                    {p.count} عملية شراء
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Stock Capital Risk Alert */}
+          <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs space-y-3">
+            <div className="flex items-center justify-between pb-3 border-b border-[#242424]">
+              <h2
+                className="text-[15px] font-semibold text-[#F7F3EA] flex items-center gap-2"
+                style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+              >
+                <AlertTriangle size={16} className="text-amber-400" />
+                تحليل مخاطر نفاذ المخزون (Stock Vulnerability)
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-[13px]">
+              <div className="bg-[#111111] p-3 rounded-xs border border-[#222]">
+                <span className="text-[#888] text-[11px] block">متغيرات نافدة بالكامل:</span>
+                <span className="font-mono text-xl font-bold text-red-400">{inventory.outOfStockVariants} عطر</span>
+              </div>
+              <div className="bg-[#111111] p-3 rounded-xs border border-[#222]">
+                <span className="text-[#888] text-[11px] block">متغيرات منخفضة (أقل من ١٥):</span>
+                <span className="font-mono text-xl font-bold text-amber-400">{inventory.lowStockVariants} عطر</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 3: Fragrance Families & Status Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Olfactive Family */}
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs space-y-4">
@@ -146,12 +257,6 @@ export default async function AdminAnalyticsPage() {
                 </div>
               );
             })}
-
-            {salesByFamily.length === 0 && (
-              <p className="text-center text-[#888880] py-6 text-[13px]">
-                لا توجد بيانات مبيعات للعائلات العطرية حتى الآن
-              </p>
-            )}
           </div>
         </div>
 
@@ -190,7 +295,7 @@ export default async function AdminAnalyticsPage() {
             className="text-[15px] font-semibold text-[#F7F3EA]"
             style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
           >
-            العطور الأكثر تحقيقاً للإيرادات (Top Perfumes)
+            العطور الأكثر تحقيقاً للإيرادات (Top Perfumes Leaderboard)
           </h2>
         </div>
 
@@ -224,14 +329,6 @@ export default async function AdminAnalyticsPage() {
                   </td>
                 </tr>
               ))}
-
-              {topProducts.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center text-[#888880]">
-                    لا توجد بيانات مبيعات مسجلة حتى الآن
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>

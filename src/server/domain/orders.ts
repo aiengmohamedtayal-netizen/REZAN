@@ -112,7 +112,33 @@ export function listAdminOrders(params?: {
   return { orders: mapped, total };
 }
 
-export function getOrderDetail(idOrNumber: string) {
+export interface OrderDetail {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  governorate: string;
+  city: string;
+  address: string;
+  subtotal: number;
+  shipping_fee: number;
+  discount_amount: number;
+  coupon_code?: string;
+  total: number;
+  currency: string;
+  order_status: string;
+  payment_status: string;
+  fulfillment_status: string;
+  payment_method: string;
+  internal_notes?: string;
+  tracking_number?: string;
+  created_at: string;
+  items: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
+export function getOrderDetail(idOrNumber: string): OrderDetail | null {
   const order = queryOne<Record<string, unknown>>(
     `SELECT * FROM orders WHERE id = ? OR order_number = ?`,
     [idOrNumber, idOrNumber]
@@ -132,7 +158,7 @@ export function getOrderDetail(idOrNumber: string) {
   return {
     ...order,
     items,
-  };
+  } as unknown as OrderDetail;
 }
 
 export function updateOrderStatus(
@@ -175,3 +201,81 @@ export function updateOrderStatus(
     return { orderId, previousStatus: current.order_status, newStatus };
   });
 }
+
+export function updateOrderPaymentStatus(
+  orderId: string,
+  paymentStatus: "pending" | "paid" | "failed" | "refunded",
+  adminId?: string,
+  adminEmail?: string
+) {
+  execute(`UPDATE orders SET payment_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, [
+    paymentStatus,
+    orderId,
+  ]);
+
+  logAuditAction({
+    adminId,
+    adminEmail,
+    action: "order.payment_update",
+    entityType: "order",
+    entityId: orderId,
+    details: { paymentStatus },
+  });
+}
+
+export function updateOrderFullDetails(
+  orderId: string,
+  data: {
+    customerName?: string;
+    customerPhone?: string;
+    customerEmail?: string;
+    governorate?: string;
+    city?: string;
+    address?: string;
+    orderStatus?: string;
+    paymentStatus?: string;
+    fulfillmentStatus?: string;
+    internalNotes?: string;
+  },
+  adminId?: string,
+  adminEmail?: string
+) {
+  execute(
+    `UPDATE orders SET
+      customer_name = COALESCE(?, customer_name),
+      customer_phone = COALESCE(?, customer_phone),
+      customer_email = COALESCE(?, customer_email),
+      governorate = COALESCE(?, governorate),
+      city = COALESCE(?, city),
+      address = COALESCE(?, address),
+      order_status = COALESCE(?, order_status),
+      payment_status = COALESCE(?, payment_status),
+      fulfillment_status = COALESCE(?, fulfillment_status),
+      internal_notes = COALESCE(?, internal_notes),
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?`,
+    [
+      data.customerName || null,
+      data.customerPhone || null,
+      data.customerEmail || null,
+      data.governorate || null,
+      data.city || null,
+      data.address || null,
+      data.orderStatus || null,
+      data.paymentStatus || null,
+      data.fulfillmentStatus || null,
+      data.internalNotes || null,
+      orderId,
+    ]
+  );
+
+  logAuditAction({
+    adminId,
+    adminEmail,
+    action: "order.details_update",
+    entityType: "order",
+    entityId: orderId,
+    details: data,
+  });
+}
+

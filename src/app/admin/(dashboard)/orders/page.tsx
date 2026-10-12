@@ -9,6 +9,7 @@ import {
   Truck,
   PackageCheck,
   XCircle,
+  Eye,
 } from "lucide-react";
 
 export default function AdminOrdersPage(props: {
@@ -162,7 +163,9 @@ async function OrdersContent({
                   return (
                     <tr key={o.id} className="hover:bg-[#1A1A1A] transition-colors">
                       <td className="px-4 py-3 font-mono font-bold text-[#B89A62]">
-                        {o.orderNumber}
+                        <Link href={`/admin/orders/${o.id}`} className="hover:underline">
+                          {o.orderNumber}
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-[#F7F3EA]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
@@ -193,6 +196,13 @@ async function OrdersContent({
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
+                          <Link
+                            href={`/admin/orders/${o.id}`}
+                            className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-[#B89A62] p-1.5 rounded-xs transition-colors"
+                            title="تفاصيل الطلب وبوليصة الشحن"
+                          >
+                            <Eye size={13} />
+                          </Link>
                           {o.orderStatus === "pending" && (
                             <form action={updateOrderStatusAction}>
                               <input type="hidden" name="orderId" value={o.id} />

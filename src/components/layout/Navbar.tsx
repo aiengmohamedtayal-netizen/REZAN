@@ -13,13 +13,27 @@ import { usePathname } from "next/navigation";
 
 // ─── 1. Announcement Ticker ────────────────────────────────────────────────────
 function AnnouncementTicker() {
-  const active = announcements.filter((a) => a.active);
+  const [tickerList, setTickerList] = useState(announcements);
+
+  useEffect(() => {
+    fetch("/api/announcements")
+      .then((res) => res.json())
+      .then((data: unknown) => {
+        const payload = data as { announcements?: typeof announcements };
+        if (payload?.announcements && Array.isArray(payload.announcements) && payload.announcements.length > 0) {
+          setTickerList(payload.announcements);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const active = tickerList.filter((a) => a.active);
   const items = [...active, ...active, ...active]; // 3× for seamless loop
   return (
     <div className="bg-[#111111] border-b border-[#2A2A2A] h-9 overflow-hidden flex items-center">
       <div className="flex animate-ticker whitespace-nowrap">
         {items.map((a, i) => (
-          <span key={`${a.id}-${i}`} className="text-[11px] text-[#F7F3EA]/60 px-10" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+          <span key={`${a.id || i}-${i}`} className="text-[11px] text-[#F7F3EA]/60 px-10" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
             {a.textAr}
             <span className="mx-6 text-[#B89A62]/40">◆</span>
           </span>

@@ -156,3 +156,132 @@ export function getDashboardOverview(): {
     recentActivity,
   };
 }
+
+export interface GovernorateSalesItem {
+  governorate: string;
+  orderCount: number;
+  revenue: number;
+  percent: number;
+}
+
+export interface CustomerRetentionMetrics {
+  totalCustomers: number;
+  singlePurchaseCount: number;
+  repeatPurchaseCount: number;
+  repeatPurchaseRate: number;
+  averageLTV: number;
+}
+
+export interface InventoryValuationMetrics {
+  totalUnits: number;
+  retailValuation: number;
+  outOfStockVariants: number;
+  lowStockVariants: number;
+  capitalAtRisk: number;
+}
+
+export interface PaymentDistributionItem {
+  method: string;
+  labelAr: string;
+  count: number;
+  revenue: number;
+  percent: number;
+}
+
+export function getAdvancedAnalytics(): {
+  governorateSales: GovernorateSalesItem[];
+  retention: CustomerRetentionMetrics;
+  inventory: InventoryValuationMetrics;
+  payments: PaymentDistributionItem[];
+} {
+  // 1. Governorate sales distribution
+  const totalRevRow = queryOne<{ total: number }>(
+    `SELECT COALESCE(SUM(total), 0) as total FROM orders WHERE order_status != 'cancelled'`
+  );
+  const totalRevenue = totalRevRow?.total || 1;
+
+  const govRows = queryAll<{ governorate: string; order_count: number; revenue: number }>(`
+    SELECT 
+      governorate,
+      COUNT(id) as order_count,
+      COALESCE(SUM(total), 0) as revenue
+    FROM orders
+    WHERE order_status != 'cancelled' AND governorate IS NOT NULL AND governorate != ''
+    GROUP BY governorate
+    ORDER BY revenue DESC
+  `);
+
+  const governorateSales: GovernorateSalesItem[] = govRows.map((g) => ({
+    governorate: g.governorate,
+    orderCount: Number(g.order_count),
+    revenue: Number(g.revenue),
+    percent: Math.round((Number(g.revenue) / totalRevenue) * 100),
+  }));
+
+  // 2. Customer Retention
+  const custOrderRows = queryAll<{ order_count: number; total_spent: number }>(`
+    SELECT COUNT(o.id) as order_count, COALESCE(SUM(o.total), 0) as total_spent
+    FROM customers c
+    LEFT JOIN orders o ON o.customer_email = c.email AND o.order_status != 'cancelled'
+    GROUP BY c.id
+  `);
+
+  const totalCust = custOrderRows.length || 1;
+  const repeatCount = custOrderRows.filter((c) => c.order_count > 1).length;
+  const singleCount = custOrderRows.filter((c) => c.order_count === 1).length;
+  const totalSpentAll = custOrderRows.reduce((sum, c) => sum + c.total_spent, 0);
+
+  const retention: CustomerRetentionMetrics = {
+    totalCustomers: totalCust,
+    singlePurchaseCount: singleCount,
+    repeatPurchaseCount: repeatCount,
+    repeatPurchaseRate: Math.round((repeatCount / totalCust) * 100),
+    averageLTV: Math.round(totalSpentAll / totalCust),
+  };
+
+  // 3. Inventory Valuation & Risk
+  const invRows = queryAll<{ stock: number; price: number }>(
+    `SELECT stock, price FROM product_variants`
+  );
+
+  const totalUnits = invRows.reduce((sum, r) => sum + r.stock, 0);
+  const retailValuation = invRows.reduce((sum, r) => sum + r.stock * r.price, 0);
+  const outOfStockVariants = invRows.filter((r) => r.stock === 0).length;
+  const lowStockVariants = invRows.filter((r) => r.stock > 0 && r.stock <= 15).length;
+  const capitalAtRisk = invRows
+    .filter((r) => r.stock <= 15)
+    .reduce((sum, r) => sum + r.stock * r.price, 0);
+
+  const inventory: InventoryValuationMetrics = {
+    totalUnits,
+    retailValuation,
+    outOfStockVariants,
+    lowStockVariants,
+    capitalAtRisk,
+  };
+
+  // 4. Payment distribution
+  const payRows = queryAll<{ payment_method: string; count: number; revenue: number }>(`
+    SELECT payment_method, COUNT(id) as count, COALESCE(SUM(total), 0) as revenue
+    FROM orders
+    WHERE order_status != 'cancelled'
+    GROUP BY payment_method
+  `);
+
+  const totalPayOrders = payRows.reduce((sum, r) => sum + r.count, 0) || 1;
+  const payments: PaymentDistributionItem[] = payRows.map((r) => ({
+    method: r.payment_method,
+    labelAr: r.payment_method === "cod" ? "الدفع عند الاستلام (COD)" : "بطاقات مدى وفيزا (Card)",
+    count: r.count,
+    revenue: r.revenue,
+    percent: Math.round((r.count / totalPayOrders) * 100),
+  }));
+
+  return {
+    governorateSales,
+    retention,
+    inventory,
+    payments,
+  };
+}
+

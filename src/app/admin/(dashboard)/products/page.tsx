@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { listAdminProducts } from "@/server/domain/products";
 import { formatEGP } from "@/data";
+import { archiveProductAction, deleteProductAction } from "@/server/actions/products";
 import {
   Package,
   Plus,
@@ -10,6 +11,9 @@ import {
   ExternalLink,
   Layers,
   Sparkles,
+  Edit2,
+  Archive,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminProductsPage(props: {
@@ -42,14 +46,14 @@ export default function AdminProductsPage(props: {
             <Layers size={15} className="text-[#B89A62]" />
             <span>المجموعات</span>
           </Link>
-          <button
-            type="button"
+          <Link
+            href="/admin/products/new"
             className="bg-[#B89A62] hover:bg-[#CDB48A] text-[#111111] font-medium text-[13px] px-4 py-2.5 rounded-xs flex items-center gap-1.5 transition-colors shadow-xs"
             style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
           >
             <Plus size={15} />
             <span>إضافة عطر جديد</span>
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -236,14 +240,49 @@ async function ProductsContent({
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/collection/${p.slug}`}
-                        target="_blank"
-                        className="text-[#706E68] hover:text-[#B89A62] p-1.5 inline-flex rounded-xs hover:bg-[#242424] transition-colors"
-                        title="معاينة في المتجر"
-                      >
-                        <ExternalLink size={15} />
-                      </Link>
+                      <div className="flex items-center gap-1.5">
+                        <Link
+                          href={`/admin/products/${p.id}`}
+                          className="text-[#B89A62] hover:text-[#CDB48A] p-1.5 inline-flex rounded-xs hover:bg-[#242424] transition-colors"
+                          title="تعديل بيانات العطر"
+                        >
+                          <Edit2 size={15} />
+                        </Link>
+
+                        <form action={archiveProductAction}>
+                          <input type="hidden" name="productId" value={p.id} />
+                          <input type="hidden" name="isArchived" value={p.isArchived ? "0" : "1"} />
+                          <button
+                            type="submit"
+                            className={`p-1.5 inline-flex rounded-xs hover:bg-[#242424] transition-colors cursor-pointer ${
+                              p.isArchived ? "text-amber-400 hover:text-amber-300" : "text-[#706E68] hover:text-amber-400"
+                            }`}
+                            title={p.isArchived ? "إلغاء الأرشفة" : "أرشفة العطر"}
+                          >
+                            <Archive size={15} />
+                          </button>
+                        </form>
+
+                        <form action={deleteProductAction}>
+                          <input type="hidden" name="productId" value={p.id} />
+                          <button
+                            type="submit"
+                            className="text-[#706E68] hover:text-red-400 p-1.5 inline-flex rounded-xs hover:bg-red-950/20 transition-colors cursor-pointer"
+                            title="حذف العطر نهائياً"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </form>
+
+                        <Link
+                          href={`/collection/${p.slug}`}
+                          target="_blank"
+                          className="text-[#706E68] hover:text-[#B89A62] p-1.5 inline-flex rounded-xs hover:bg-[#242424] transition-colors"
+                          title="معاينة في المتجر"
+                        >
+                          <ExternalLink size={15} />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

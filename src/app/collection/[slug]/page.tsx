@@ -5,6 +5,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/sections/ProductCard";
 import { getProductBySlug, products, reviews as allReviews } from "@/data";
+import { queryAll } from "@/server/db";
+import { CustomerReviewForm } from "@/components/product/CustomerReviewForm";
 import { Star, ShieldCheck, Sparkles, RefreshCw } from "lucide-react";
 import { AddToCartButton } from "./AddToCartButton";
 
@@ -16,7 +18,33 @@ export default async function ProductDetailPage(props: { params: Promise<{ slug:
     notFound();
   }
 
-  const productReviews = allReviews.filter((r) => r.productId === product.id);
+  // Fetch approved reviews from database
+  let dbReviews: Array<{ id: string; customerName: string; rating: number; commentAr: string; verified: boolean }> = [];
+  try {
+    const rows = queryAll<{
+      id: string;
+      customer_name: string;
+      rating: number;
+      comment_ar: string;
+      is_verified: number;
+    }>(
+      "SELECT id, customer_name, rating, comment_ar, is_verified FROM reviews WHERE (product_id = ? OR product_id = ?) AND status = 'approved' ORDER BY created_at DESC",
+      [product.id, product.slug]
+    );
+    dbReviews = rows.map((r) => ({
+      id: r.id,
+      customerName: r.customer_name,
+      rating: r.rating,
+      commentAr: r.comment_ar,
+      verified: r.is_verified === 1,
+    }));
+  } catch {
+    // fallback
+  }
+
+  const staticReviews = allReviews.filter((r) => r.productId === product.id);
+  const combinedReviews = [...dbReviews, ...staticReviews.filter((sr) => !dbReviews.some((dr) => dr.id === sr.id))];
+
   const relatedProducts = products
     .filter((p) => p.id !== product.id && (p.olfactiveFamily === product.olfactiveFamily || p.collection === product.collection))
     .slice(0, 4);
@@ -147,32 +175,45 @@ export default async function ProductDetailPage(props: { params: Promise<{ slug:
         )}
 
         {/* Customer Reviews Section */}
-        {productReviews.length > 0 && (
-          <section className="bg-[#111111] py-12 sm:py-16 px-4 sm:px-5 lg:px-8 text-[#F7F3EA]">
-            <div className="max-w-[1000px] mx-auto">
-              <h2 className="text-[20px] sm:text-[24px] font-semibold mb-8 sm:mb-10 text-center" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-                آراء العملاء عن {product.nameAr}
+        <section className="bg-[#111111] py-12 sm:py-16 px-4 sm:px-5 lg:px-8 text-[#F7F3EA] border-t border-[#222]">
+          <div className="max-w-[1000px] mx-auto space-y-12">
+            <div>
+              <h2 className="text-[20px] sm:text-[24px] font-semibold mb-8 text-center" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+                آراء وتجارب مقتني {product.nameAr}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                {productReviews.map((r) => (
-                  <div key={r.id} className="bg-[#1A1A1A] border border-[#2A2A2A] p-4 sm:p-6 rounded-sm">
-                    <div className="flex gap-1 mb-2.5 sm:mb-3 text-[#B89A62]">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={12} className={i < r.rating ? "fill-[#B89A62]" : "fill-transparent"} />
-                      ))}
+              {combinedReviews.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {combinedReviews.map((r) => (
+                    <div key={r.id} className="bg-[#1A1A1A] border border-[#2A2A2A] p-4 sm:p-6 rounded-sm">
+                      <div className="flex gap-1 mb-2.5 sm:mb-3 text-[#B89A62]">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} className={i < r.rating ? "fill-[#B89A62]" : "fill-transparent"} />
+                        ))}
+                      </div>
+                      <p className="text-[13px] sm:text-[14px] leading-relaxed mb-4 text-[#F7F3EA]/90" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+                        &ldquo;{r.commentAr}&rdquo;
+                      </p>
+                      <p className="text-[11px] sm:text-[12px] text-[#888880]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+                        {r.customerName} {r.verified && "✓ مشتري موثق"}
+                      </p>
                     </div>
-                    <p className="text-[13px] sm:text-[14px] leading-relaxed mb-4 text-[#F7F3EA]/90" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-                      &ldquo;{r.commentAr}&rdquo;
-                    </p>
-                    <p className="text-[11px] sm:text-[12px] text-[#888880]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-                      {r.customerName} {r.verified && "✓ مشتري موثق"}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-[#888880] text-[13px]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
+                  كن أول من يشارك انطباعه وتجربته مع هذا العطر الأيقوني.
+                </p>
+              )}
             </div>
-          </section>
-        )}
+
+            {/* Customer Review Submission Form */}
+            <CustomerReviewForm
+              productId={product.id}
+              productSlug={product.slug}
+              productNameAr={product.nameAr}
+            />
+          </div>
+        </section>
       </main>
       <Footer />
     </>

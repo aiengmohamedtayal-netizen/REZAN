@@ -1,7 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { queryAll } from "@/server/db";
-import { updateMessageStatusAction } from "@/server/actions/messages";
+import {
+  updateMessageStatusAction,
+  updateMessageNotesAction,
+  deleteMessageAction,
+} from "@/server/actions/messages";
 import {
   MessageSquare,
   Mail,
@@ -10,6 +14,8 @@ import {
   Clock,
   Archive,
   Reply,
+  Trash2,
+  Edit2,
 } from "lucide-react";
 
 interface MessageRow {
@@ -220,6 +226,37 @@ async function MessagesContent({
                 </p>
               </div>
 
+              {/* Admin Internal Concierge Notes */}
+              <div className="bg-[#141414] p-3 rounded-xs border border-[#222] space-y-2">
+                <details className="text-[12px]">
+                  <summary className="text-[#A09C94] hover:text-[#F7F3EA] cursor-pointer flex items-center gap-1.5 select-none">
+                    <Edit2 size={12} className="text-[#B89A62]" />
+                    <span>ملاحظات الكونسيرج الداخلية {msg.admin_notes ? "(يوجد ملاحظات)" : "(إضافة ملاحظة)"}</span>
+                  </summary>
+                  <form action={updateMessageNotesAction} className="mt-2.5 space-y-2">
+                    <input type="hidden" name="messageId" value={msg.id} />
+                    <textarea
+                      name="adminNotes"
+                      defaultValue={msg.admin_notes || ""}
+                      rows={2}
+                      placeholder="سجل هنا ملاحظات المتابعة الهاتفية مع العميل..."
+                      className="w-full bg-[#1A1A1A] border border-[#333] text-[#F7F3EA] text-[12px] p-2 rounded-xs outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-[#242424] hover:bg-[#B89A62] hover:text-black text-white text-[11px] px-3 py-1 rounded-xs transition-colors cursor-pointer"
+                    >
+                      حفظ الملاحظة
+                    </button>
+                  </form>
+                </details>
+                {msg.admin_notes && (
+                  <p className="text-[11px] text-[#B89A62] bg-[#111] p-2 rounded-xs border border-[#222]">
+                    ملاحظة مسجلة: {msg.admin_notes}
+                  </p>
+                )}
+              </div>
+
               {/* Action buttons */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <a
@@ -268,6 +305,17 @@ async function MessagesContent({
                       title="أرشفة الرسالة"
                     >
                       <Archive size={15} />
+                    </button>
+                  </form>
+
+                  <form action={deleteMessageAction}>
+                    <input type="hidden" name="messageId" value={msg.id} />
+                    <button
+                      type="submit"
+                      className="p-1.5 rounded-xs text-[#706E68] hover:text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer"
+                      title="حذف الرسالة نهائياً"
+                    >
+                      <Trash2 size={15} />
                     </button>
                   </form>
                 </div>

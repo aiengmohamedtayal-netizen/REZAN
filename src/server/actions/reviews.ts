@@ -24,6 +24,7 @@ export async function moderateReviewAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/reviews");
+  revalidatePath("/collection");
 }
 
 export async function deleteReviewAction(formData: FormData): Promise<void> {
@@ -39,4 +40,5 @@ export async function deleteReviewAction(formData: FormData): Promise<void> {
   logAuditAction(admin.id, admin.email, "review.deleted", "review", reviewId, {});
 
   revalidatePath("/admin/reviews");
+  revalidatePath("/collection");
 }
