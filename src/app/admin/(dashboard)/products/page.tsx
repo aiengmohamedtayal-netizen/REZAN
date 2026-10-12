@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { listAdminProducts } from "@/server/domain/products";
@@ -11,23 +12,9 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export default async function AdminProductsPage(props: {
+export default function AdminProductsPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const search = searchParams.search as string | undefined;
-  const collection = searchParams.collection as string | undefined;
-  const family = searchParams.family as string | undefined;
-  const status = (searchParams.status as "all" | "active" | "archived") || "all";
-
-  const { products, total } = listAdminProducts({
-    search,
-    collection,
-    family,
-    status,
-    limit: 50,
-  });
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,10 +23,6 @@ export default async function AdminProductsPage(props: {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
               CATALOG MANAGEMENT
-            </span>
-            <span className="text-[#444]">•</span>
-            <span className="text-[12px] text-[#888880]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-              {total} عطر مسجل
             </span>
           </div>
           <h1
@@ -70,6 +53,35 @@ export default async function AdminProductsPage(props: {
         </div>
       </div>
 
+      {/* Dynamic Streamed Content */}
+      <Suspense fallback={<ProductsSkeleton />}>
+        <ProductsContent searchParams={props.searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ProductsContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const search = params.search as string | undefined;
+  const collection = params.collection as string | undefined;
+  const family = params.family as string | undefined;
+  const status = (params.status as "all" | "active" | "archived") || "all";
+
+  const { products } = listAdminProducts({
+    search,
+    collection,
+    family,
+    status,
+    limit: 50,
+  });
+
+  return (
+    <>
       {/* Filters & Search Row */}
       <div className="bg-[#141414] border border-[#242424] p-4 rounded-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <form method="GET" className="flex-1 flex items-center gap-2 max-w-md">
@@ -239,6 +251,19 @@ export default async function AdminProductsPage(props: {
             </tbody>
           </table>
         </div>
+      </div>
+    </>
+  );
+}
+
+function ProductsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="h-14 bg-[#141414] border border-[#242424] rounded-xs animate-pulse" />
+      <div className="bg-[#141414] border border-[#242424] rounded-xs p-6 animate-pulse space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-12 bg-[#1A1A1A] rounded-xs" />
+        ))}
       </div>
     </div>
   );

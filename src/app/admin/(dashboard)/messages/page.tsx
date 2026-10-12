@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { queryAll } from "@/server/db";
 import { updateMessageStatusAction } from "@/server/actions/messages";
@@ -23,29 +24,9 @@ interface MessageRow {
   created_at: string;
 }
 
-export default async function AdminMessagesPage(props: {
+export default function AdminMessagesPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const statusFilter = (searchParams.status as string) || "all";
-
-  let sql = "SELECT * FROM contact_messages";
-  const params: unknown[] = [];
-
-  if (statusFilter !== "all") {
-    sql += " WHERE status = ?";
-    params.push(statusFilter);
-  }
-
-  sql += " ORDER BY created_at DESC";
-
-  const messages = queryAll<MessageRow>(sql, params);
-
-  const allStatuses = queryAll<{ status: string }>("SELECT status FROM contact_messages");
-  const totalCount = allStatuses.length;
-  const unreadCount = allStatuses.filter((m) => m.status === "unread").length;
-  const repliedCount = allStatuses.filter((m) => m.status === "replied").length;
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -63,6 +44,41 @@ export default async function AdminMessagesPage(props: {
         </div>
       </div>
 
+      {/* Dynamic Streamed Content */}
+      <Suspense fallback={<MessagesSkeleton />}>
+        <MessagesContent searchParams={props.searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function MessagesContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const statusFilter = (params.status as string) || "all";
+
+  let sql = "SELECT * FROM contact_messages";
+  const queryParams: unknown[] = [];
+
+  if (statusFilter !== "all") {
+    sql += " WHERE status = ?";
+    queryParams.push(statusFilter);
+  }
+
+  sql += " ORDER BY created_at DESC";
+
+  const messages = queryAll<MessageRow>(sql, queryParams);
+
+  const allStatuses = queryAll<{ status: string }>("SELECT status FROM contact_messages");
+  const totalCount = allStatuses.length;
+  const unreadCount = allStatuses.filter((m) => m.status === "unread").length;
+  const repliedCount = allStatuses.filter((m) => m.status === "replied").length;
+
+  return (
+    <>
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
@@ -265,6 +281,23 @@ export default async function AdminMessagesPage(props: {
             لا توجد استفسارات في صندوق الرسائل
           </div>
         )}
+      </div>
+    </>
+  );
+}
+
+function MessagesSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-[#161616] border border-[#242424] rounded-xs animate-pulse" />
+        ))}
+      </div>
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-[#161616] border border-[#242424] rounded-xs animate-pulse" />
+        ))}
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentAdmin } from "@/server/auth/session";
 import { AdminShell } from "@/components/admin/AdminShell";
 
+export const instant = false;
+
 export default async function AdminDashboardLayout({
   children,
 }: {

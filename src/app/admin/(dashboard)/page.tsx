@@ -16,6 +16,8 @@ import {
   Package,
 } from "lucide-react";
 
+export const instant = false;
+
 export default async function AdminDashboardPage() {
   const admin = await getCurrentAdmin();
   const {

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { queryAll } from "@/server/db";
 import { formatEGP } from "@/data";
 import { Users, Search, ShoppingBag, Award } from "lucide-react";
@@ -14,11 +15,66 @@ interface CustomerRow {
   created_at: string;
 }
 
-export default async function AdminCustomersPage(props: {
+export default function AdminCustomersPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const search = searchParams.search as string | undefined;
+  return (
+    <div className="space-y-6">
+      {/* Static Header Shell */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
+              CLIENTELE CONCIERGE
+            </span>
+          </div>
+          <h1
+            className="text-[22px] sm:text-[26px] font-semibold text-[#F7F3EA]"
+            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+          >
+            سجل العملاء والنخبة
+          </h1>
+        </div>
+      </div>
+
+      {/* Static Search Shell */}
+      <div className="bg-[#141414] border border-[#242424] p-4 rounded-xs">
+        <form method="GET" className="flex items-center gap-2 max-w-md">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              name="search"
+              placeholder="ابحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
+              className="w-full bg-[#1A1A1A] border border-[#2E2E2E] focus:border-[#B89A62] text-[#F7F3EA] text-[13px] px-3 py-2 ps-9 rounded-xs outline-none"
+              style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+            />
+            <Search size={15} className="absolute start-3 top-1/2 -translate-y-1/2 text-[#706E68]" />
+          </div>
+          <button
+            type="submit"
+            className="bg-[#242424] hover:bg-[#2A2A2A] text-[#C8C4BC] text-[13px] px-3.5 py-2 rounded-xs transition-colors"
+            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+          >
+            بحث
+          </button>
+        </form>
+      </div>
+
+      {/* Dynamic Streamed Content */}
+      <Suspense fallback={<CustomersSkeleton />}>
+        <CustomersContent searchParams={props.searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function CustomersContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const search = params.search as string | undefined;
 
   const whereClauses: string[] = [];
   const queryParams: unknown[] = [];
@@ -42,28 +98,7 @@ export default async function AdminCustomersPage(props: {
   const vipCount = customers.filter((c) => c.total_spent >= 10000).length;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
-              CLIENTELE CONCIERGE
-            </span>
-            <span className="text-[#444]">•</span>
-            <span className="text-[12px] text-[#888880]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-              {totalCount} عميل مسجل
-            </span>
-          </div>
-          <h1
-            className="text-[22px] sm:text-[26px] font-semibold text-[#F7F3EA]"
-            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
-          >
-            سجل العملاء والنخبة
-          </h1>
-        </div>
-      </div>
-
+    <>
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[#141414] border border-[#242424] p-4.5 rounded-xs">
@@ -92,30 +127,6 @@ export default async function AdminCustomersPage(props: {
           <p className="text-[22px] font-bold text-[#F7F3EA] font-mono mb-1">{formatEGP(avgClv)}</p>
           <p className="text-[11px] text-[#706E68]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>قيمة العميل الدائمة (CLV)</p>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="bg-[#141414] border border-[#242424] p-4 rounded-xs">
-        <form method="GET" className="flex items-center gap-2 max-w-md">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              name="search"
-              defaultValue={search || ""}
-              placeholder="ابحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
-              className="w-full bg-[#1A1A1A] border border-[#2E2E2E] focus:border-[#B89A62] text-[#F7F3EA] text-[13px] px-3 py-2 ps-9 rounded-xs outline-none"
-              style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
-            />
-            <Search size={15} className="absolute start-3 top-1/2 -translate-y-1/2 text-[#706E68]" />
-          </div>
-          <button
-            type="submit"
-            className="bg-[#242424] hover:bg-[#2A2A2A] text-[#C8C4BC] text-[13px] px-3.5 py-2 rounded-xs transition-colors"
-            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
-          >
-            بحث
-          </button>
-        </form>
       </div>
 
       {/* Customers Table */}
@@ -185,6 +196,27 @@ export default async function AdminCustomersPage(props: {
             </tbody>
           </table>
         </div>
+      </div>
+    </>
+  );
+}
+
+function CustomersSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-[#141414] border border-[#242424] p-4.5 rounded-xs animate-pulse">
+            <div className="h-4 bg-[#242424] rounded-xs w-24 mb-3" />
+            <div className="h-8 bg-[#202020] rounded-xs w-16 mb-2" />
+            <div className="h-3 bg-[#1A1A1A] rounded-xs w-32" />
+          </div>
+        ))}
+      </div>
+      <div className="bg-[#141414] border border-[#242424] rounded-xs p-6 animate-pulse space-y-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-10 bg-[#1A1A1A] rounded-xs" />
+        ))}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { listAdminOrders } from "@/server/domain/orders";
 import { formatEGP } from "@/data";
@@ -10,15 +11,47 @@ import {
   XCircle,
 } from "lucide-react";
 
-export default async function AdminOrdersPage(props: {
+export default function AdminOrdersPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const search = searchParams.search as string | undefined;
-  const status = searchParams.status as string | undefined;
-  const paymentStatus = searchParams.paymentStatus as string | undefined;
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
+              ORDER FULFILLMENT
+            </span>
+          </div>
+          <h1
+            className="text-[22px] sm:text-[26px] font-semibold text-[#F7F3EA]"
+            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
+          >
+            إدارة الطلبات والشحن
+          </h1>
+        </div>
+      </div>
 
-  const { orders, total } = listAdminOrders({
+      {/* Dynamic Streamed Content */}
+      <Suspense fallback={<OrdersSkeleton />}>
+        <OrdersContent searchParams={props.searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function OrdersContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const search = params.search as string | undefined;
+  const status = params.status as string | undefined;
+  const paymentStatus = params.paymentStatus as string | undefined;
+
+  const { orders } = listAdminOrders({
     search,
     status,
     paymentStatus,
@@ -40,28 +73,7 @@ export default async function AdminOrdersPage(props: {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] text-[#B89A62] font-medium tracking-widest uppercase font-en">
-              ORDER FULFILLMENT
-            </span>
-            <span className="text-[#444]">•</span>
-            <span className="text-[12px] text-[#888880]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-              {total} طلب مسجل في المنظومة
-            </span>
-          </div>
-          <h1
-            className="text-[22px] sm:text-[26px] font-semibold text-[#F7F3EA]"
-            style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
-          >
-            إدارة الطلبات والشحن
-          </h1>
-        </div>
-      </div>
-
+    <>
       {/* Filter Tabs & Search */}
       <div className="bg-[#141414] border border-[#242424] p-4 rounded-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <form method="GET" className="flex-1 flex items-center gap-2 max-w-md">
@@ -180,7 +192,6 @@ export default async function AdminOrdersPage(props: {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        {/* Quick state transitions */}
                         <div className="flex items-center gap-1.5">
                           {o.orderStatus === "pending" && (
                             <form action={updateOrderStatusAction}>
@@ -189,7 +200,7 @@ export default async function AdminOrdersPage(props: {
                               <button
                                 type="submit"
                                 title="تجهيز الطلب"
-                                className="bg-blue-950/60 hover:bg-blue-900 border border-blue-800/40 text-blue-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1"
+                                className="bg-blue-950/60 hover:bg-blue-900 border border-blue-800/40 text-blue-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1 cursor-pointer"
                                 style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
                               >
                                 <CheckCircle size={12} />
@@ -205,7 +216,7 @@ export default async function AdminOrdersPage(props: {
                               <button
                                 type="submit"
                                 title="تسليم للشحن"
-                                className="bg-purple-950/60 hover:bg-purple-900 border border-purple-800/40 text-purple-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1"
+                                className="bg-purple-950/60 hover:bg-purple-900 border border-purple-800/40 text-purple-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1 cursor-pointer"
                                 style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
                               >
                                 <Truck size={12} />
@@ -221,7 +232,7 @@ export default async function AdminOrdersPage(props: {
                               <button
                                 type="submit"
                                 title="تأكيد الاستلام"
-                                className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800/40 text-emerald-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1"
+                                className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800/40 text-emerald-300 text-[11px] px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1 cursor-pointer"
                                 style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
                               >
                                 <PackageCheck size={12} />
@@ -237,7 +248,7 @@ export default async function AdminOrdersPage(props: {
                               <button
                                 type="submit"
                                 title="إلغاء الطلب"
-                                className="text-red-400 hover:text-red-300 hover:bg-red-950/30 p-1 rounded-xs transition-colors"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-950/30 p-1 rounded-xs transition-colors cursor-pointer"
                               >
                                 <XCircle size={14} />
                               </button>
@@ -252,6 +263,19 @@ export default async function AdminOrdersPage(props: {
             </tbody>
           </table>
         </div>
+      </div>
+    </>
+  );
+}
+
+function OrdersSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="h-14 bg-[#141414] border border-[#242424] rounded-xs animate-pulse" />
+      <div className="bg-[#141414] border border-[#242424] rounded-xs p-6 animate-pulse space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-12 bg-[#1A1A1A] rounded-xs" />
+        ))}
       </div>
     </div>
   );

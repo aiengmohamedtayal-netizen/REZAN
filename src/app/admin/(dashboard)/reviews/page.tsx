@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { queryAll } from "@/server/db";
 import { moderateReviewAction, deleteReviewAction } from "@/server/actions/reviews";
@@ -25,40 +26,9 @@ interface ReviewRow {
   product_name_ar: string | null;
 }
 
-export default async function AdminReviewsPage(props: {
+export default function AdminReviewsPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const statusFilter = (searchParams.status as string) || "all";
-
-  let sql = `
-    SELECT 
-      r.*, p.name_ar as product_name_ar
-    FROM reviews r
-    LEFT JOIN products p ON p.id = r.product_id
-  `;
-
-  const params: unknown[] = [];
-  if (statusFilter !== "all") {
-    sql += " WHERE r.status = ?";
-    params.push(statusFilter);
-  }
-
-  sql += " ORDER BY r.created_at DESC";
-
-  const reviews = queryAll<ReviewRow>(sql, params);
-
-  const allReviews = queryAll<{ status: string; rating: number }>(
-    "SELECT status, rating FROM reviews"
-  );
-  const totalCount = allReviews.length;
-  const pendingCount = allReviews.filter((r) => r.status === "pending").length;
-  const approvedCount = allReviews.filter((r) => r.status === "approved").length;
-  const avgRating =
-    totalCount > 0
-      ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / totalCount).toFixed(1)
-      : "5.0";
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -76,6 +46,52 @@ export default async function AdminReviewsPage(props: {
         </div>
       </div>
 
+      {/* Dynamic Streamed Content */}
+      <Suspense fallback={<ReviewsSkeleton />}>
+        <ReviewsContent searchParams={props.searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ReviewsContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const statusFilter = (params.status as string) || "all";
+
+  let sql = `
+    SELECT 
+      r.*, p.name_ar as product_name_ar
+    FROM reviews r
+    LEFT JOIN products p ON p.id = r.product_id
+  `;
+
+  const queryParams: unknown[] = [];
+  if (statusFilter !== "all") {
+    sql += " WHERE r.status = ?";
+    queryParams.push(statusFilter);
+  }
+
+  sql += " ORDER BY r.created_at DESC";
+
+  const reviews = queryAll<ReviewRow>(sql, queryParams);
+
+  const allReviews = queryAll<{ status: string; rating: number }>(
+    "SELECT status, rating FROM reviews"
+  );
+  const totalCount = allReviews.length;
+  const pendingCount = allReviews.filter((r) => r.status === "pending").length;
+  const approvedCount = allReviews.filter((r) => r.status === "approved").length;
+  const avgRating =
+    totalCount > 0
+      ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / totalCount).toFixed(1)
+      : "5.0";
+
+  return (
+    <>
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[#161616] border border-[#242424] p-5 rounded-xs flex items-center justify-between">
@@ -281,6 +297,23 @@ export default async function AdminReviewsPage(props: {
             </div>
           )}
         </div>
+      </div>
+    </>
+  );
+}
+
+function ReviewsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-[#161616] border border-[#242424] rounded-xs animate-pulse" />
+        ))}
+      </div>
+      <div className="bg-[#161616] border border-[#242424] rounded-xs p-6 animate-pulse space-y-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-14 bg-[#1A1A1A] rounded-xs" />
+        ))}
       </div>
     </div>
   );
