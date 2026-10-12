@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MotionStaggerGroup, MotionItem, MotionDiv } from "@/components/ui/MotionPrimitives";
 import { rezanFade } from "@/design-system/motion";
 
+import { HeroVideo } from "./HeroVideo";
+
 export function Hero() {
   return (
     <section className="relative w-full min-h-[460px] sm:min-h-[540px] h-[75dvh] sm:h-[80dvh] lg:h-[88dvh] max-h-[960px] bg-[#0A0A0A] overflow-hidden flex items-end justify-center">
@@ -13,18 +15,7 @@ export function Hero() {
         variants={rezanFade} 
         className="absolute inset-0 w-full h-full overflow-hidden"
       >
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-          tabIndex={-1}
-          className="w-full h-full object-cover object-center scale-[1.01]"
-        >
-          <source src="/videos/hero-campaign.mp4" type="video/mp4" />
-        </video>
+        <HeroVideo />
       </MotionDiv>
 
       {/* 

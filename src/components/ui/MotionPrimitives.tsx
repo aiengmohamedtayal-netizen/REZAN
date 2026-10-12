@@ -12,7 +12,7 @@ export function MotionDiv({ children, variants = rezanFadeUp, className, ...prop
       variants={variants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-10%" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       className={className}
       {...props}
     >
@@ -27,7 +27,7 @@ export function MotionSection({ children, variants = rezanReveal, className, ...
       variants={variants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-10%" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       className={className}
       {...props}
     >
@@ -42,7 +42,7 @@ export function MotionStaggerGroup({ children, className, stagger = 0.1, delay =
       variants={rezanEditorialStagger(stagger, delay)}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-10%" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       className={className}
       {...props}
     >
@@ -57,7 +57,7 @@ export function MotionImageReveal({ children, className, ...props }: MotionProps
       variants={rezanMaskReveal}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-10%" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       className={className}
       {...props}
     >

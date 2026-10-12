@@ -94,7 +94,7 @@ export function ProductCard({ product, className = "", light = false }: ProductC
             className={`object-contain object-center p-2.5 sm:p-3 transition-all duration-500 ease-out group-hover:scale-[1.02] ${
               secondaryImage ? "group-hover:opacity-0" : ""
             }`}
-            onError={() => setImgSrc("/images/rezan/heritage/rezan-heritage-fragrance.png")}
+            onError={() => setImgSrc("/images/rezan/heritage/rezan-heritage-fragrance.webp")}
           />
 
           {/* Secondary image subtle crossfade on hover if available */}

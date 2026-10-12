@@ -14,7 +14,8 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
 
 const STORAGE_KEY = "rezan_wishlist_v1";
 
-let memoryWishlist: string[] = [];
+const EMPTY_WISHLIST: string[] = [];
+let memoryWishlist: string[] = EMPTY_WISHLIST;
 
 const listeners = new Set<() => void>();
 
@@ -34,7 +35,7 @@ function getSnapshot(): string[] {
 }
 
 function getServerSnapshot(): string[] {
-  return [];
+  return EMPTY_WISHLIST;
 }
 
 // Client-side initialization
@@ -72,7 +73,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearWishlist = useCallback(() => {
-    memoryWishlist = [];
+    memoryWishlist = EMPTY_WISHLIST;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryWishlist));
     } catch {

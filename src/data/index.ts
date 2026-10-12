@@ -15,7 +15,7 @@ const demoImg = (url: string) => ({
   primary: `${url}?auto=format&fit=crop&w=800&q=80`,
   gallery: [
     `${url}?auto=format&fit=crop&w=1200&q=80`,
-    "/images/rezan/heritage/rezan-heritage-fragrance.png",
+    "/images/rezan/heritage/rezan-heritage-fragrance.webp",
   ],
   alt: "زجاجة عطر فاخرة من دار ريزان",
   source: "Unsplash",
@@ -662,7 +662,7 @@ export const collections: Collection[] = [
     nameEn: "Heritage",
     descriptionAr: "مستوحاة من ثقافة العطور المصرية والعربية العريقة على ضفاف النيل.",
     descriptionEn: "Inspired by authentic Egyptian and Arabic fragrance culture along the Nile.",
-    image: "/images/rezan/heritage/rezan-heritage-fragrance.png",
+    image: "/images/rezan/heritage/rezan-heritage-fragrance.webp",
     productCount: products.filter((p) => p.collection === "heritage").length,
   },
   {

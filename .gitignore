@@ -45,3 +45,7 @@ test-results/
 *.tsbuildinfo
 next-env.d.ts
 node_modules
+.vinext/
+.cloudflare/
+*.exe
+New folder/

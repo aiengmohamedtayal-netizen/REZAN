@@ -117,7 +117,7 @@ export function NewArrivalsSection() {
 export function FeaturedCollectionBanner() {
   return (
     <MotionSection className="relative w-full overflow-hidden min-h-[300px] h-[320px] sm:h-[360px] lg:h-[400px] bg-[#0D0D0D]">
-      <Image src="/images/rezan/collections/oud-attar-golden-prayer-beads.png" alt="مجموعة ريزان" fill className="object-cover object-center opacity-40" sizes="100vw" />
+      <Image src="/images/rezan/collections/oud-attar-golden-prayer-beads.webp" alt="مجموعة ريزان" fill className="object-cover object-center opacity-40" sizes="100vw" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-[#0D0D0D]/40 to-[#0D0D0D]/60" />
       <MotionStaggerGroup className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-6">
         <MotionItem className="text-[10px] sm:text-[11px] text-[#B89A62]/80 tracking-[0.25em] mb-3 sm:mb-4 uppercase" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>المجموعة المميزة</MotionItem>
@@ -216,7 +216,7 @@ export function MaisonStorySection() {
         {/* On desktop RTL: order-1 renders on the RIGHT (first column), taking ~50% width */}
         <MotionImageReveal className="order-2 lg:order-1 lg:col-span-6 relative aspect-[4/3] sm:aspect-[16/11] rounded-sm overflow-hidden bg-[#E8E4D8] border border-[#E8E4DB] shadow-sm">
           <Image
-            src="/images/rezan/heritage/rezan-heritage-fragrance.png"
+            src="/images/rezan/heritage/rezan-heritage-fragrance.webp"
             alt="عطور ريزان - إرث العطور المصرية العريقة"
             fill
             className="object-cover object-center"

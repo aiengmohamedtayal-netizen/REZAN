@@ -56,8 +56,8 @@ export const fragrances: Fragrance[] = [
     defaultSizeMl: 100,
     isAvailable: true,
     isBestSeller: true,
-    image: "/images/rezan/collections/oud-attar-golden-prayer-beads.png",
-    images: ["/images/rezan/collections/oud-attar-golden-prayer-beads.png"],
+    image: "/images/rezan/collections/oud-attar-golden-prayer-beads.webp",
+    images: ["/images/rezan/collections/oud-attar-golden-prayer-beads.webp"],
     collection: "Signature",
   },
   {
