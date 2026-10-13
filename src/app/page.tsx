@@ -13,22 +13,31 @@ import {
   ReviewsSection,
   NewsletterSection,
 } from "@/components/sections/HomeSections";
+import { getStorefrontHomepageData } from "@/server/domain/storefront";
 
 export default function HomePage() {
+  const data = getStorefrontHomepageData();
+
   return (
     <>
       <Navbar />
       <main>
-        <Hero />
+        <Hero
+          titleAr={data.hero.titleAr}
+          subtitleAr={data.hero.subtitleAr}
+          ctaAr={data.hero.ctaAr}
+          ctaUrl={data.hero.ctaUrl}
+          badgeAr={data.hero.badgeAr}
+        />
         <PromoStrip />
         <CategoryTiles />
-        <BestSellersSection />
-        <FeaturedCollectionBanner />
-        <NewArrivalsSection />
-        <CollectionsSection />
+        <BestSellersSection products={data.bestSellers} />
+        <FeaturedCollectionBanner banner={data.featuredBanner} />
+        <NewArrivalsSection products={data.newArrivals} />
+        <CollectionsSection collections={data.collections} />
         <DiscoverySection />
         <MaisonStorySection />
-        <ReviewsSection />
+        <ReviewsSection reviews={data.reviews} />
         <NewsletterSection />
       </main>
       <Footer />

@@ -40,6 +40,9 @@ export async function createCollectionAction(formData: FormData): Promise<void> 
 
   revalidatePath("/admin/collections");
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/collection");
 }
 
 export async function updateCollectionAction(formData: FormData): Promise<void> {
@@ -76,6 +79,10 @@ export async function updateCollectionAction(formData: FormData): Promise<void> 
 
   revalidatePath("/admin/collections");
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  if (slug) revalidatePath(`/collections/${slug}`);
+  revalidatePath("/collection");
 }
 
 export async function deleteCollectionAction(formData: FormData): Promise<void> {
@@ -89,4 +96,7 @@ export async function deleteCollectionAction(formData: FormData): Promise<void> 
 
   revalidatePath("/admin/collections");
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/collection");
 }

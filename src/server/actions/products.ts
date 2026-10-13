@@ -109,6 +109,11 @@ export async function createProductAction(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/products");
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/collection");
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/gifts");
   redirect("/admin/products");
 }
 
@@ -181,6 +186,12 @@ export async function updateProductAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/products");
   revalidatePath(`/admin/products/${id}`);
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/collection");
+  if (slug) revalidatePath(`/collection/${slug}`);
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/gifts");
   redirect("/admin/products");
 }
 
@@ -196,6 +207,10 @@ export async function archiveProductAction(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/products");
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/collection");
+  revalidatePath("/collections");
+  revalidatePath("/search");
 }
 
 export async function deleteProductAction(formData: FormData): Promise<void> {
@@ -209,4 +224,8 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/products");
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/collection");
+  revalidatePath("/collections");
+  revalidatePath("/search");
 }

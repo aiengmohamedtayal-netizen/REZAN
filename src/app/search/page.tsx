@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/sections/ProductCard";
-import { products } from "@/data";
+import { getStorefrontProducts } from "@/server/domain/storefront";
 import { Search } from "lucide-react";
 
 export const instant = false;
@@ -12,6 +12,7 @@ async function SearchResults({ searchParamsPromise }: { searchParamsPromise: Pro
   const searchParams = await searchParamsPromise;
   const q = (searchParams.q || "").trim().toLowerCase();
 
+  const products = getStorefrontProducts();
   const results = q
     ? products.filter(
         (p) =>

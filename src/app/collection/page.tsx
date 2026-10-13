@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/sections/ProductCard";
-import { products } from "@/data";
+import { getStorefrontProducts } from "@/server/domain/storefront";
 import Link from "next/link";
 
 export const instant = false;
@@ -16,6 +16,7 @@ async function CollectionGrid({ searchParamsPromise }: { searchParamsPromise: Pr
   const family = searchParams.family as string | undefined;
   const collectionSlug = searchParams.collection as string | undefined;
 
+  const products = getStorefrontProducts();
   let filteredProducts = [...products];
 
   if (filter === "new") filteredProducts = filteredProducts.filter((p) => p.isNew);

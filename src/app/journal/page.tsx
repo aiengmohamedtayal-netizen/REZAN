@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import Image from "next/image";
-import { articles } from "@/data";
+import { getStorefrontArticles } from "@/server/domain/storefront";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
@@ -11,6 +11,7 @@ export const metadata = {
 };
 
 export default function JournalPage() {
+  const articles = getStorefrontArticles();
   const [featured, ...rest] = articles;
 
   return (

@@ -2,17 +2,21 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/sections/ProductCard";
-import { collections, products } from "@/data";
+import {
+  getStorefrontCollectionBySlug,
+  getStorefrontProducts,
+} from "@/server/domain/storefront";
 
 export default async function SingleCollectionPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const col = collections.find((c) => c.slug === params.slug);
+  const col = getStorefrontCollectionBySlug(params.slug);
 
   if (!col) {
     notFound();
   }
 
-  const collectionProducts = products.filter((p) => p.collection === col.slug);
+  const allProducts = getStorefrontProducts();
+  const collectionProducts = allProducts.filter((p) => p.collection === col.slug);
 
   return (
     <>

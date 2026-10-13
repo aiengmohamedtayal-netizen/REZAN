@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
 import { bestSellers, newArrivals, collections, reviews } from "@/data";
+import type { Product, Collection, Review } from "@/types";
 import { MotionSection, MotionStaggerGroup, MotionItem, MotionImageReveal } from "@/components/ui/MotionPrimitives";
 
 // ─── Promotional strip ─────────────────────────────────────────────────────────
@@ -78,13 +79,14 @@ function SH({ ar, en, viewHref, ivory = false }: { ar: string; en: string; viewH
 }
 
 // ─── Best Sellers ──────────────────────────────────────────────────────────────
-export function BestSellersSection() {
+export function BestSellersSection({ products }: { products?: Product[] } = {}) {
+  const list = products && products.length > 0 ? products : bestSellers;
   return (
     <MotionSection className="bg-[#111111] py-10 sm:py-14 px-4 sm:px-5 lg:px-8 border-t border-[#1E1E1E]">
       <div className="max-w-[1440px] mx-auto">
         <SH ar="الأكثر مبيعاً" en="BEST SELLERS" viewHref="/collection?filter=bestsellers" />
         <MotionStaggerGroup className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {bestSellers.map((p) => (
+          {list.map((p) => (
             <MotionItem key={p.id}>
               <ProductCard product={p} />
             </MotionItem>
@@ -96,13 +98,14 @@ export function BestSellersSection() {
 }
 
 // ─── New Arrivals ──────────────────────────────────────────────────────────────
-export function NewArrivalsSection() {
+export function NewArrivalsSection({ products }: { products?: Product[] } = {}) {
+  const list = products && products.length > 0 ? products : newArrivals;
   return (
     <MotionSection className="bg-[#F7F3EA] py-10 sm:py-14 px-4 sm:px-5 lg:px-8">
       <div className="max-w-[1440px] mx-auto">
         <SH ar="وصل حديثاً" en="NEW ARRIVALS" viewHref="/collection?filter=new" ivory />
         <MotionStaggerGroup className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {newArrivals.map((p) => (
+          {list.map((p) => (
             <MotionItem key={p.id}>
               <ProductCard product={p} light />
             </MotionItem>
@@ -114,24 +117,40 @@ export function NewArrivalsSection() {
 }
 
 // ─── Featured Collection Banner ────────────────────────────────────────────────
-export function FeaturedCollectionBanner() {
+export function FeaturedCollectionBanner({
+  banner,
+}: {
+  banner?: {
+    titleAr?: string;
+    subtitleAr?: string;
+    ctaAr?: string;
+    ctaUrl?: string;
+    badgeAr?: string;
+  };
+} = {}) {
+  const title = banner?.titleAr || "مجموعة عود النور";
+  const subtitle = banner?.subtitleAr || "أرقى عطور العود — مُقطّرة بحرفية وموجّهة لمن يؤمن أن العطر هوية.";
+  const cta = banner?.ctaAr || "اكتشف المجموعة";
+  const ctaUrl = banner?.ctaUrl || "/collection?collection=oud";
+  const badge = banner?.badgeAr || "المجموعة المميزة";
+
   return (
     <MotionSection className="relative w-full overflow-hidden min-h-[300px] h-[320px] sm:h-[360px] lg:h-[400px] bg-[#0D0D0D]">
       <Image src="/images/rezan/collections/oud-attar-golden-prayer-beads.webp" alt="مجموعة ريزان" fill className="object-cover object-center opacity-40" sizes="100vw" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-[#0D0D0D]/40 to-[#0D0D0D]/60" />
       <MotionStaggerGroup className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-6">
-        <MotionItem className="text-[10px] sm:text-[11px] text-[#B89A62]/80 tracking-[0.25em] mb-3 sm:mb-4 uppercase" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>المجموعة المميزة</MotionItem>
+        <MotionItem className="text-[10px] sm:text-[11px] text-[#B89A62]/80 tracking-[0.25em] mb-3 sm:mb-4 uppercase" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>{badge}</MotionItem>
         <MotionItem className="text-[24px] sm:text-[34px] lg:text-[44px] font-semibold text-white mb-2 sm:mb-3 leading-tight break-words" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-          مجموعة عود النور
+          {title}
         </MotionItem>
         <MotionItem className="text-[13px] sm:text-[14px] text-white/70 max-w-md mb-6 sm:mb-8 leading-relaxed" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-          أرقى عطور العود — مُقطّرة بحرفية وموجّهة لمن يؤمن أن العطر هوية.
+          {subtitle}
         </MotionItem>
         <MotionItem>
-          <Link href="/collection?collection=oud"
+          <Link href={ctaUrl}
             className="inline-flex items-center justify-center text-[13px] bg-[#B89A62] text-[#111111] px-8 sm:px-10 py-3.5 min-h-[48px] font-medium hover:bg-[#CDB48A] transition-colors"
             style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>
-            اكتشف المجموعة
+            {cta}
           </Link>
         </MotionItem>
       </MotionStaggerGroup>
@@ -140,13 +159,14 @@ export function FeaturedCollectionBanner() {
 }
 
 // ─── Collections Grid ──────────────────────────────────────────────────────────
-export function CollectionsSection() {
+export function CollectionsSection({ collections: colList }: { collections?: Collection[] } = {}) {
+  const list = colList && colList.length > 0 ? colList : collections;
   return (
     <MotionSection className="bg-[#111111] py-10 sm:py-14 px-4 sm:px-5 lg:px-8">
       <div className="max-w-[1440px] mx-auto">
         <SH ar="مجموعاتنا" en="COLLECTIONS" viewHref="/collection" />
         <MotionStaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {collections.map((col) => (
+          {list.map((col) => (
             <MotionItem key={col.id}>
               <Link href={`/collection?collection=${col.slug}`}
                 className="group relative overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] hover:border-[#B89A62]/40 transition-colors block h-full">
@@ -247,7 +267,8 @@ export function MaisonStorySection() {
 }
 
 // ─── Reviews ───────────────────────────────────────────────────────────────────
-export function ReviewsSection() {
+export function ReviewsSection({ reviews: revList }: { reviews?: Review[] } = {}) {
+  const list = revList && revList.length > 0 ? revList : reviews;
   return (
     <MotionSection className="bg-[#111111] py-10 sm:py-14 px-4 sm:px-5 lg:px-8 border-t border-[#1E1E1E]">
       <div className="max-w-[1440px] mx-auto">
@@ -256,7 +277,7 @@ export function ReviewsSection() {
           <h2 className="text-[20px] sm:text-[24px] lg:text-[28px] font-semibold text-[#F7F3EA]" style={{ fontFamily: "var(--font-tajarib), sans-serif" }}>ماذا يقول عملاؤنا</h2>
         </div>
         <MotionStaggerGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {reviews.slice(0, 6).map((r) => (
+          {list.slice(0, 6).map((r) => (
             <MotionItem key={r.id} className="bg-[#1A1A1A] border border-[#2A2A2A] p-4 sm:p-5 rounded-sm">
               <div className="flex gap-0.5 mb-2.5 sm:mb-3">
                 {[1, 2, 3, 4, 5].map((s) => (

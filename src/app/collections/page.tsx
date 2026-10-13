@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { collections } from "@/data";
+import { getStorefrontCollections } from "@/server/domain/storefront";
 
 export default function CollectionsPage() {
+  const collections = getStorefrontCollections();
   return (
     <>
       <Navbar />

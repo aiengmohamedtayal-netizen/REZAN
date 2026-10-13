@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getArticleBySlug } from "@/data";
+import { getStorefrontArticleBySlug } from "@/server/domain/storefront";
 
 export default async function ArticleDetailPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const article = getArticleBySlug(params.slug);
+  const article = getStorefrontArticleBySlug(params.slug);
 
   if (!article) {
     notFound();

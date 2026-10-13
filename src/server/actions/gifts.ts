@@ -26,6 +26,7 @@ export async function toggleGiftSetAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/gifts");
+  revalidatePath("/gifts");
 }
 
 export async function createGiftSetAction(formData: FormData): Promise<void> {
@@ -90,6 +91,7 @@ export async function createGiftSetAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/gifts");
+  revalidatePath("/gifts");
 }
 
 export async function updateGiftSetAction(formData: FormData): Promise<void> {
@@ -156,6 +158,7 @@ export async function updateGiftSetAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/gifts");
+  revalidatePath("/gifts");
 }
 
 export async function deleteGiftSetAction(formData: FormData): Promise<void> {
@@ -175,4 +178,5 @@ export async function deleteGiftSetAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/gifts");
+  revalidatePath("/gifts");
 }

@@ -4,48 +4,27 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/sections/ProductCard";
-import { getProductBySlug, products, reviews as allReviews } from "@/data";
-import { queryAll } from "@/server/db";
+import {
+  getStorefrontProductBySlug,
+  getStorefrontProducts,
+  getStorefrontReviews,
+} from "@/server/domain/storefront";
 import { CustomerReviewForm } from "@/components/product/CustomerReviewForm";
 import { Star, ShieldCheck, Sparkles, RefreshCw } from "lucide-react";
 import { AddToCartButton } from "./AddToCartButton";
 
 export default async function ProductDetailPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const product = getProductBySlug(params.slug);
+  const product = getStorefrontProductBySlug(params.slug);
 
   if (!product) {
     notFound();
   }
 
-  // Fetch approved reviews from database
-  let dbReviews: Array<{ id: string; customerName: string; rating: number; commentAr: string; verified: boolean }> = [];
-  try {
-    const rows = queryAll<{
-      id: string;
-      customer_name: string;
-      rating: number;
-      comment_ar: string;
-      is_verified: number;
-    }>(
-      "SELECT id, customer_name, rating, comment_ar, is_verified FROM reviews WHERE (product_id = ? OR product_id = ?) AND status = 'approved' ORDER BY created_at DESC",
-      [product.id, product.slug]
-    );
-    dbReviews = rows.map((r) => ({
-      id: r.id,
-      customerName: r.customer_name,
-      rating: r.rating,
-      commentAr: r.comment_ar,
-      verified: r.is_verified === 1,
-    }));
-  } catch {
-    // fallback
-  }
+  const combinedReviews = getStorefrontReviews(product.id);
+  const allProducts = getStorefrontProducts();
 
-  const staticReviews = allReviews.filter((r) => r.productId === product.id);
-  const combinedReviews = [...dbReviews, ...staticReviews.filter((sr) => !dbReviews.some((dr) => dr.id === sr.id))];
-
-  const relatedProducts = products
+  const relatedProducts = allProducts
     .filter((p) => p.id !== product.id && (p.olfactiveFamily === product.olfactiveFamily || p.collection === product.collection))
     .slice(0, 4);
 

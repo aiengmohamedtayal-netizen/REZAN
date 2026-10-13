@@ -4,7 +4,19 @@ import { rezanFade } from "@/design-system/motion";
 
 import { HeroVideo } from "./HeroVideo";
 
-export function Hero() {
+export function Hero({
+  titleAr = "إرثٌ من العطر، وأثرٌ لا يزول.",
+  subtitleAr = "توليفات عطرية نادرة من قلب التراث العربي بلمسة باريسية راقية.",
+  ctaAr = "اكتشف العطور",
+  ctaUrl = "/collection",
+  badgeAr = "MAISON DE PARFUM",
+}: {
+  titleAr?: string;
+  subtitleAr?: string;
+  ctaAr?: string;
+  ctaUrl?: string;
+  badgeAr?: string;
+} = {}) {
   return (
     <section className="relative w-full min-h-[460px] sm:min-h-[540px] h-[75dvh] sm:h-[80dvh] lg:h-[88dvh] max-h-[960px] bg-[#0A0A0A] overflow-hidden flex items-end justify-center">
       {/* 
@@ -36,30 +48,30 @@ export function Hero() {
         <MotionItem
           className="text-[10px] sm:text-[12px] text-[#B89A62] tracking-[0.3em] uppercase font-en mb-2.5 sm:mb-3 font-medium opacity-90 drop-shadow-sm"
         >
-          MAISON DE PARFUM
+          {badgeAr}
         </MotionItem>
 
         <MotionItem
           className="text-[24px] sm:text-[34px] lg:text-[44px] font-semibold text-[#F7F3EA] leading-snug max-w-2xl mb-3 sm:mb-4 drop-shadow-md break-words"
           style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
         >
-          إرثٌ من العطر، وأثرٌ لا يزول.
+          {titleAr}
         </MotionItem>
 
         <MotionItem
           className="text-[13px] sm:text-[15px] text-[#F7F3EA]/80 max-w-lg mb-6 sm:mb-8 leading-relaxed font-light drop-shadow"
           style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
         >
-          توليفات عطرية نادرة من قلب التراث العربي بلمسة باريسية راقية.
+          {subtitleAr}
         </MotionItem>
 
         <MotionItem className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
           <Link
-            href="/collection"
+            href={ctaUrl}
             className="w-full sm:w-auto text-[13px] font-medium bg-[#B89A62] text-[#111111] px-8 sm:px-10 py-3.5 min-h-[48px] flex items-center justify-center hover:bg-[#CDB48A] transition-all duration-300 shadow-lg hover:shadow-[#B89A62]/20"
             style={{ fontFamily: "var(--font-tajarib), sans-serif" }}
           >
-            اكتشف العطور
+            {ctaAr}
           </Link>
           <Link
             href="/collections"
